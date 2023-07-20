@@ -10,7 +10,7 @@ public class ListPractice {
     }
 
     public ListPractice() {
-        //practiceArrayList();
+        practiceArrayList();
         //practiceList();
         // practiceHashSet();
         //practiceHashMap();
@@ -33,6 +33,12 @@ public class ListPractice {
         System.out.println(number);
         boolean result = number.contains(5);
         System.out.println(result);
+        number.add(5);
+        System.out.println(number);
+        ;
+        System.out.println(number.remove(1));
+        System.out.println(number);
+
 
     }
 

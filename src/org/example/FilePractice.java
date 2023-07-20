@@ -19,7 +19,7 @@ public class FilePractice {
         //createFileBinary();// בניית קובץ בינארי
         //writingBinaryFile();// כתיבה על קובץ בינארי
         //readFromBinaryFile();// קריאה מקובץ בינארי
-        //studentGrades();// תרגיל כיתה
+        studentGrades();// תרגיל כיתה
 
     }
 
@@ -43,7 +43,7 @@ public class FilePractice {
     public void writeToFile() {
         String text = "avihai navon";
         //כתיבה בתצורה רגילה
-        if (file != null && file.exists()) {// בודק שהקובץ כבר הוגדר
+        if (file != null && file.exists()) {// בודק שהקובץ כבר הוגדר וקיים
             try {
                 FileWriter fileWriter = new FileWriter(file); // אובייקט אשר מאפשר את הכתיבה על הקובץ
                 fileWriter.write(text);//ביצוע פעולת הכתיבה
@@ -196,8 +196,10 @@ public class FilePractice {
             String finalResult = String.valueOf(result);
             if (fileStudentGrades != null && fileStudentGrades.exists()) {
                 FileWriter fileWriter = new FileWriter(fileStudentGrades);
+                //FileWriter fileWriter = new FileWriter(fileStudentGrades,true);//אם נרצה שהתוצאה תישמר ולא תיגרס בצורת שירשור צמוד
                 fileWriter.write(finalResult);
                 fileWriter.close();
+
             }
 
 

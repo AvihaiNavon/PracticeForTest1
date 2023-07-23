@@ -171,6 +171,7 @@ class Philisopher extends Thread{
     }
     public void think(){
         try {
+            System.out.println(" P "+ id+ "is thinking;");
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -178,13 +179,24 @@ class Philisopher extends Thread{
     }
     public void tryToEat(){
         synchronized (this.right){
-            if(this.right.isAvailable()){
+            if(this.right.isAvailable()) {
                 this.right.pick();
+                this.right.notify();
                 eat();
+                try {
+                    this.right.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }else {
+                if(this.left.isAvailable())
                 synchronized (this.left){
                     if(this.left.isAvailable()){
                         this.left.pick();
+                        eat();
+                        this.left.drop();
                     }
+                    this.left.notify();
                 }
             }
 
@@ -192,6 +204,7 @@ class Philisopher extends Thread{
     }
     private void eat(){
         try {
+            System.out.println("P"+ id+ "is eating");
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

@@ -109,7 +109,7 @@ public class FilePractice {
     }
 
     public void writingBinaryFile() { // לכתוב על קובץ בינארי
-        Student student = new Student("avihai", 123456);
+        student student = new student("avihai", 123456);
 
         if (file != null && file.exists()) {// בודק שהקובץ כבר הוגדר
             try {
@@ -126,13 +126,13 @@ public class FilePractice {
     }
 
     public void readFromBinaryFile() {
-        Student student = null;
+        student student = null;
         if (file != null && file.exists()) {
             FileInputStream fileInputStream = null;
             try {
                 fileInputStream = new FileInputStream(file);// לוקח מהקובץ, לשים לב ל input
                 ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);// לוקח את האובייקט
-                student = (Student) objectInputStream.readObject();
+                student = (org.example.student) objectInputStream.readObject();
                 objectInputStream.close();
                 fileInputStream.close();
                 System.out.println(student);
@@ -211,11 +211,11 @@ public class FilePractice {
 
 }
 
-class Student implements Serializable { //ממשק מחייב במידה ורוצים ליצור קובץ מהאובייקט
+class student implements Serializable { //ממשק מחייב במידה ורוצים ליצור קובץ מהאובייקט
     private String name;
     private Integer id;
 
-    public Student(String name, Integer id) {
+    public student(String name, Integer id) {
         this.name = name;
         this.id = id;
     }

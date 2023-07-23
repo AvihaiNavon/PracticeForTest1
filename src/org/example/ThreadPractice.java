@@ -1,7 +1,6 @@
 package org.example;
 
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class ThreadPractice {
     public static void main(String[] args) {
@@ -14,6 +13,10 @@ public class ThreadPractice {
         //class2();
         //mainPracticeClass2();
         //classThread();
+        //class3();
+        //class4();
+        //carRace();
+        class5();
 
 
     }
@@ -99,7 +102,319 @@ public class ThreadPractice {
         TargilThread targilThread=new TargilThread("first",10);
         targilThread.start();
     }
+    public void class3(){
+        Random random=new Random();
+        //Clock clock=new Clock();
+        //clock.start();
+        //firstToOneHundred();
 
+        int n=100;
+        int [] array=new int[n];
+        for(int i=0;i<n;i++){
+            array[i]=random.nextInt(1,5);
+        }
+        int total=1;
+        for (int j=0;j<n;j++){
+            total+=array[j];
+        }
+        System.out.println("Total is : "+ total);
+        int part=n/10;
+        List<Thread> allThread=new ArrayList<>();
+        for(int i=0;i<part;i++){
+            int index=i*10;
+           Thread t= new SumNumber(index,(index+part),array);
+           allThread.add(t);
+           t.start();
+        }
+       for (Thread t:allThread){ // חשוב לצור את כל התהליכונים לטובת ההדפסה
+           try {
+               t.join();
+           } catch (InterruptedException e) {
+               throw new RuntimeException(e);
+           }
+       }
+        System.out.println("Total Thread is : "+ SumNumber.sum);
+
+    }
+    public void firstToOneHundred() {
+        for (int i = 0; i < 5; i++) {
+            RunToOneHundred runToOneHundred = new RunToOneHundred(i);
+            runToOneHundred.start();
+        }
+
+        while (true) {
+            if (RunToOneHundred.scoreboard.size() == 5) {
+                System.out.println(RunToOneHundred.scoreboard);
+                break;
+            }
+        }
+    }
+    public void class4(){
+
+
+     List<Customer> customers=new ArrayList<>();
+     customers.add(new Customer(1));
+        customers.add(new Customer(2));
+        customers.add(new Customer(3));
+     CoffeeShop coffeeShop=new CoffeeShop();
+     coffeeShop.start();
+     new Thread(()->{
+             while (!customers.isEmpty()){
+                 System.out.println(customers);
+                 for (Customer customer:customers){
+                     if (!customer.isGetCoffee()){
+                         coffeeShop.coffeeReady=false;
+                         customer.setGetCoffee(true);
+                     }
+                 }
+             }
+     }).start();
+
+
+    }
+    public void carRace(){
+        List<Car>cars=new ArrayList<>();
+        for(int i=0;i<5;i++){
+            new Car((i+1)).start();
+        }
+        for (Car car:cars){
+            try {
+                car.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        System.out.println(Car.carsOver);
+    }
+    public void class5(){
+         List<Product1> products=new ArrayList<>();
+        new Thread(()->{
+            Producer producer=new Producer(products);
+            producer.start();
+        }).start();
+        new Thread(()->{
+            Consumer consumer=new Consumer(products);
+            consumer.start();
+        }).start();
+
+
+}
+}
+class Product1{
+    private String name;
+    public Product1(String name){
+        this.name=name;
+    }
+
+    @Override
+    public String toString() {
+        return "Product1{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product1 product1)) return false;
+        return Objects.equals(name, product1.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
+    }
+}
+class Producer extends Thread {
+    private List<Product1> products;
+    public List<String> names= Arrays.asList("asd","fdfd","dfasg","fferfe","sgas");
+    private Random random = new Random();
+
+    public Producer(List<Product1> products) {
+        this.products=products;
+
+    }
+    public void addToList(){
+        Product1 p=new Product1(names.get(random.nextInt(names.size())));
+        System.out.println("Add: "+ p);
+        products.add(p);
+        System.out.println(products);
+    }
+
+    public   List<Product1> getProducts() {
+        return products;
+    }
+    public void run() {
+        while (true) {
+            synchronized (products) {
+                addToList();
+                products.notify();
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+}
+class Consumer extends Thread {
+    private Random random = new Random();
+    private Object object = new Object();
+    private List<Product1> products;
+
+    public Consumer(List<Product1> products) {
+        this.products = products;
+    }
+
+    public void run() {
+
+        while(true) {
+            synchronized(products) {
+                if(products.isEmpty()) {
+                    try {
+                        System.out.println("List is empty, waiting...");
+                        products.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Product1 p = products.remove(0);
+                    System.out.println("Removed: " + p);
+                }
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+        }
+
+class Car extends Thread {
+    public static List<Integer> carsOver = new ArrayList<>();
+    private int id;
+    private int distance;
+    private boolean raceOver;
+    Random random = new Random();
+
+    public Car(int id) {
+        this.id = id;
+        distance = 0;
+        raceOver = false;
+    }
+
+    public void run() {
+        while (distance <= 100) {
+            distance += random.nextInt(3, 5);
+        }
+        System.out.println("FINIS " + id);
+        carsOver.add(id);
+
+    }
+}
+class Customer{
+    private int id;
+    private boolean getCoffee;
+    public Customer(int id){
+        this.id=id;
+        getCoffee=false;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", getCoffee=" + getCoffee +
+                '}';
+    }
+
+    public void setGetCoffee(boolean getCoffee) {
+        this.getCoffee = getCoffee;
+    }
+
+    public boolean isGetCoffee() {
+        return getCoffee;
+    }
+}
+class CoffeeShop extends Thread{
+    public static boolean coffeeReady=true;
+
+    private Object makeCoffee=new Object();;
+    public void makeCoffee(){
+
+        System.out.println("Making coffee");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Coffee is ready!");
+        coffeeReady=true;
+    }
+    public void run() {
+        while (true){
+            synchronized (makeCoffee){
+                if(!coffeeReady) {
+                    System.out.println(" Customer: " + " is waiting");
+                    makeCoffee();
+
+                    makeCoffee.notify();
+
+
+                }else {
+                    System.out.println("Customer: "+" received coffee");
+                    try {
+                        makeCoffee.wait();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+
+        }
+    }
+
+    }
+
+
+class SumNumber extends Thread{
+    private int index;
+    private int part;
+    private int [] array;
+    public static int sum=1;
+    public SumNumber(int index,int part,int [] array){
+        this.index=index;
+        this.part=part;
+        this.array=array;
+
+    }
+    public void run(){
+        for (int i=index;i<part;i++){
+            sum+=array[i];
+        }
+        System.out.println("WORK"+ index);
+    }
+}
+class RunToOneHundred extends Thread{
+    Random random=new Random();
+    private int num;
+    private int id;
+    public static List<Integer> scoreboard=new ArrayList<>();
+    public RunToOneHundred(int id){
+        this.id=id;
+    }
+    @Override
+    public void run() {
+        while (num<=10000) {
+            num+=random.nextInt(0,5);
+        }
+    scoreboard.add(id);
+    }
 }
 class TargilThread extends Thread{ // הורשה של תהליכון
     // מאפשר עבודה על משתנים ושיתוף מידע
@@ -137,6 +452,39 @@ class TargilThreadRunnable implements Runnable { // מחלקה שיורשת ממ
 
 
     }
+class Clock extends Thread{
+    private int sec;
+    private int min;
+    private int hour;
+
+    public Clock(){
+        sec=0;
+        min=0;
+        hour=0;
+
+    }
+    public void run(){
+        while (true){
+            try {
+                Thread.sleep(1000);
+                sec++;
+                if(sec==60){
+                    sec=0;
+                    min++;
+                }
+                if (min==60){
+
+                    min=0;
+                    hour++;
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println("Clock: "+ hour +":"+min+":"+sec);
+        }
+    }
+
+        }
 
 
 
